@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  --color-bordeaux: #6b1e23;
+  --color-cream: #f5e6d3;
+  --color-ink: #000000;
+}
+
+@theme inline {
+  --color-bordeaux: var(--color-bordeaux);
+  --color-cream: var(--color-cream);
+  --color-ink: var(--color-ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-playfair);
+}

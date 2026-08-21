@@ -1,33 +1,33 @@
 const STEPS = [
   {
-    week: "Semaine 1",
+    week: "Week 1",
     title: "My Reviews",
-    description: "Mise en place du système d'avis : noter, commenter et retrouver ses expériences passées.",
+    description: "Building the review system: rate, comment, and revisit past experiences.",
   },
   {
-    week: "Semaine 2",
+    week: "Week 2",
     title: "My Taste Profile",
-    description: "Construction du profil gustatif qui apprend de chaque avis pour affiner les recommandations.",
+    description: "Building the taste profile that learns from every review to refine recommendations.",
   },
   {
-    week: "Semaine 3",
+    week: "Week 3",
     title: "Ask Izy",
-    description: "Développement de l'assistant IA capable de répondre aux questions et de guider les choix.",
+    description: "Developing the AI assistant able to answer questions and guide choices.",
   },
   {
-    week: "Semaine 4",
+    week: "Week 4",
     title: "Community",
-    description: "Ouverture de l'espace communautaire pour échanger et suivre les recommandations des autres membres.",
+    description: "Opening the community space to connect and follow other members' recommendations.",
   },
   {
-    week: "Semaine 5",
+    week: "Week 5",
     title: "Premium Access",
-    description: "Intégration des fonctionnalités et avantages réservés aux membres premium.",
+    description: "Integrating the features and perks reserved for premium members.",
   },
   {
-    week: "Semaine 6",
+    week: "Week 6",
     title: "Final Testing & Launch",
-    description: "Tests finaux, corrections et mise en ligne officielle de la plateforme IZY.",
+    description: "Final testing, fixes, and the official launch of the IZY platform.",
   },
 ];
 
@@ -36,10 +36,10 @@ export default function Roadmap() {
     <section className="bg-ink px-6 py-20 text-cream">
       <div className="mx-auto max-w-6xl">
         <h2 className="text-center font-serif text-3xl font-bold sm:text-4xl">
-          Ce qui arrive bientôt
+          Coming up next
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-sm text-cream/70 sm:text-base">
-          Six semaines de construction, une étape par semaine, pour donner vie à IZY.
+          Six weeks of building, one step at a time, to bring IZY to life.
         </p>
         <div className="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((step) => (

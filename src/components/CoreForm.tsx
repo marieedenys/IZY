@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { generateRecommendation } from "@/lib/generateRecommendation";
 
 const CUISINE_OPTIONS = ["Italian", "Japanese", "French", "Mediterranean"];
 const ATMOSPHERE_OPTIONS = ["Romantic", "Casual", "Festive", "Calm"];
@@ -15,8 +16,13 @@ export default function CoreForm() {
   const [cuisineType, setCuisineType] = useState("");
   const [atmosphere, setAtmosphere] = useState("");
   const [budget, setBudget] = useState("");
+  const [result, setResult] = useState("");
 
   const isComplete = cuisineType !== "" && atmosphere !== "" && budget !== "";
+
+  const handleAskIzy = () => {
+    setResult(generateRecommendation(cuisineType, atmosphere, budget));
+  };
 
   return (
     <div className="mx-auto max-w-xl">
@@ -87,11 +93,21 @@ export default function CoreForm() {
         <button
           type="button"
           disabled={!isComplete}
+          onClick={handleAskIzy}
           className="mt-2 rounded-full bg-bordeaux px-6 py-3 font-serif text-cream transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Ask Izy
         </button>
       </form>
+
+      {result && (
+        <div className="mt-6 rounded-lg border border-bordeaux/20 bg-white p-6 sm:p-8">
+          <span className="inline-block rounded-full bg-bordeaux/10 px-3 py-1 text-xs font-semibold tracking-wide text-bordeaux uppercase">
+            Simulated recommendation
+          </span>
+          <p className="mt-4 font-serif text-lg text-ink">{result}</p>
+        </div>
+      )}
     </div>
   );
 }

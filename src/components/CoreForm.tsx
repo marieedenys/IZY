@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { generateRecommendation } from "@/lib/generateRecommendation";
 import { supabase } from "@/lib/supabase/client";
 
@@ -16,6 +17,7 @@ const labelClassName =
   "text-xs font-semibold tracking-wide text-bordeaux uppercase";
 
 export default function CoreForm() {
+  const router = useRouter();
   const [cuisineType, setCuisineType] = useState("");
   const [atmosphere, setAtmosphere] = useState("");
   const [budget, setBudget] = useState("");
@@ -38,6 +40,9 @@ export default function CoreForm() {
       generated_output: result,
     });
     setSaveStatus(error ? "error" : "saved");
+    if (!error) {
+      router.refresh();
+    }
   };
 
   return (

@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { generateRecommendation } from "@/lib/generateRecommendation";
+import { supabase } from "@/lib/supabase/client";
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const CUISINE_OPTIONS = ["Italian", "Japanese", "French", "Mediterranean"];
 const ATMOSPHERE_OPTIONS = ["Romantic", "Casual", "Festive", "Calm"];
@@ -17,11 +20,24 @@ export default function CoreForm() {
   const [atmosphere, setAtmosphere] = useState("");
   const [budget, setBudget] = useState("");
   const [result, setResult] = useState("");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
   const isComplete = cuisineType !== "" && atmosphere !== "" && budget !== "";
 
   const handleAskIzy = () => {
     setResult(generateRecommendation(cuisineType, atmosphere, budget));
+    setSaveStatus("idle");
+  };
+
+  const handleSave = async () => {
+    setSaveStatus("saving");
+    const { error } = await supabase.from("core_outputs").insert({
+      cuisine_type: cuisineType,
+      atmosphere,
+      budget,
+      generated_output: result,
+    });
+    setSaveStatus(error ? "error" : "saved");
   };
 
   return (
@@ -106,6 +122,25 @@ export default function CoreForm() {
             Simulated recommendation
           </span>
           <p className="mt-4 font-serif text-lg text-ink">{result}</p>
+
+          <div className="mt-5 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saveStatus === "saving" || saveStatus === "saved"}
+              className="rounded-full border border-bordeaux px-5 py-2 font-serif text-sm text-bordeaux transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {saveStatus === "saving" ? "Saving…" : "Save"}
+            </button>
+            {saveStatus === "saved" && (
+              <span className="text-sm text-bordeaux">Saved.</span>
+            )}
+            {saveStatus === "error" && (
+              <span className="text-sm text-bordeaux">
+                Couldn&apos;t save, please try again.
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>

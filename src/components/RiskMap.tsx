@@ -6,7 +6,7 @@ export type Risk = {
 
 export const RISKS: Risk[] = [
   {
-    label: "Incumbents (OpenTable, Resy) copy the AI recommendation feature",
+    label: "Direct taste-matching competitors (Paire, Rarify, Zest Maps) out-improve the algorithm or community first",
     impact: "High",
     likelihood: "High",
   },

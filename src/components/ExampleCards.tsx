@@ -1,39 +1,44 @@
 type Example = {
   name: string;
-  region: "Global" | "Mexico";
+  region: string;
   description: string;
 };
 
 const EXAMPLES: Example[] = [
   {
-    name: "OpenTable",
+    name: "Zest Maps",
     region: "Global",
-    description: "Wide-coverage reservations and reviews platform used across most major markets.",
+    description: "Builds a taste profile from dining payment history and social signals like TikTok, Instagram, and Reddit.",
   },
   {
-    name: "Resy",
+    name: "Paire",
     region: "Global",
-    description: "Curated reservations platform (owned by American Express) focused on hard-to-book restaurants.",
+    description: "Builds a personal taste profile through quizzes, then recommends restaurants with machine learning.",
   },
   {
-    name: "TheFork",
+    name: "Rarify",
     region: "Global",
-    description: "Reservations and reviews platform (a TripAdvisor company) with strong coverage across Europe.",
+    description: "A 2-minute quiz builds a taste profile, then matches menu items across nearby restaurants.",
   },
   {
-    name: "Michelin Guide",
+    name: "Umamii",
     region: "Global",
-    description: "Editorial fine-dining guide built around curated star ratings rather than crowd reviews.",
+    description: "Calculates a personalized match score per venue from the user's palate and their trusted circle.",
   },
   {
-    name: "Yelp",
-    region: "Global",
-    description: "General-purpose local business reviews and discovery, not specialized in fine dining.",
+    name: "Taste Match",
+    region: "Switzerland",
+    description: "An algorithm surfaces only restaurants matching the user's taste, with direct booking.",
   },
   {
-    name: "Toctoc",
+    name: "UffDeli",
     region: "Mexico",
-    description: "Mexico-based restaurant reservation platform built specifically for the local market.",
+    description: "An AI concierge for Mexico City, focused on Roma Norte, Roma Sur, Condesa, and Juárez, with 1,000+ hand-picked spots.",
+  },
+  {
+    name: "Zesty",
+    region: "Mexico",
+    description: "A Mexican dining app built around real customer photos and a phone concierge.",
   },
 ];
 
@@ -44,7 +49,7 @@ export default function ExampleCards() {
         Examples
       </h2>
       <p className="mt-1 text-sm text-ink/60">
-        5 global examples and 1 example localized for Mexico.
+        5 global examples and 2 examples localized for Mexico.
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

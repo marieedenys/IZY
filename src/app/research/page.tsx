@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ExampleCards from "@/components/ExampleCards";
 import CompetitorsTable from "@/components/CompetitorsTable";
+import RiskMap from "@/components/RiskMap";
 
 export const metadata: Metadata = {
   title: "Research — IZY",
@@ -21,6 +22,7 @@ export default function ResearchPage() {
       <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-16">
         <ExampleCards />
         <CompetitorsTable />
+        <RiskMap />
       </div>
     </div>
   );

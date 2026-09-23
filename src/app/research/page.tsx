@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ExampleCards from "@/components/ExampleCards";
 import CompetitorsTable from "@/components/CompetitorsTable";
 import RiskMap from "@/components/RiskMap";
+import ResearchSummary from "@/components/ResearchSummary";
 
 export const metadata: Metadata = {
   title: "Research — IZY",
@@ -23,6 +24,7 @@ export default function ResearchPage() {
         <ExampleCards />
         <CompetitorsTable />
         <RiskMap />
+        <ResearchSummary />
       </div>
     </div>
   );

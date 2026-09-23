@@ -1,10 +1,10 @@
-type Risk = {
+export type Risk = {
   label: string;
   impact: "High" | "Low";
   likelihood: "High" | "Low";
 };
 
-const RISKS: Risk[] = [
+export const RISKS: Risk[] = [
   {
     label: "Incumbents (OpenTable, Resy) copy the AI recommendation feature",
     impact: "High",

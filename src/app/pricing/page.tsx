@@ -2,12 +2,25 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RevenueCalculator from "@/components/RevenueCalculator";
+import PricingDashboardWidget, {
+  type PricingScenario,
+} from "@/components/PricingDashboardWidget";
+import { supabase } from "@/lib/supabase/client";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Pricing — IZY",
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const { data } = await supabase
+    .from("pricing_scenarios")
+    .select("id, user_count, scenario_type, monthly_revenue, created_at")
+    .order("created_at", { ascending: false });
+
+  const scenarios: PricingScenario[] = data ?? [];
+
   return (
     <div className="flex flex-1 flex-col">
       <Navbar />
@@ -23,6 +36,7 @@ export default function PricingPage() {
 
         <div className="mx-auto mt-12 flex w-full max-w-3xl flex-col gap-16">
           <RevenueCalculator />
+          <PricingDashboardWidget scenarios={scenarios} />
         </div>
       </div>
       <Footer />

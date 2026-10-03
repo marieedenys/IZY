@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const PLUS_PRICE = 9;
 const CONCIERGE_PRICE = 29;
@@ -23,8 +27,10 @@ const currency = (value: number) =>
   });
 
 export default function RevenueCalculator() {
+  const router = useRouter();
   const [freeUsers, setFreeUsers] = useState(1000);
   const [scenarioType, setScenarioType] = useState<ScenarioType>("conservative");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
   const scenario = SCENARIOS[scenarioType];
 
@@ -40,6 +46,19 @@ export default function RevenueCalculator() {
         annualRevenue: monthly * 12,
       };
     }, [freeUsers, scenario]);
+
+  const handleSave = async () => {
+    setSaveStatus("saving");
+    const { error } = await supabase.from("pricing_scenarios").insert({
+      user_count: freeUsers,
+      scenario_type: scenario.label,
+      monthly_revenue: monthlyRevenue,
+    });
+    setSaveStatus(error ? "error" : "saved");
+    if (!error) {
+      router.refresh();
+    }
+  };
 
   return (
     <section>
@@ -63,7 +82,10 @@ export default function RevenueCalculator() {
             type="number"
             min={0}
             value={freeUsers}
-            onChange={(e) => setFreeUsers(Math.max(0, Number(e.target.value)))}
+            onChange={(e) => {
+              setFreeUsers(Math.max(0, Number(e.target.value)));
+              setSaveStatus("idle");
+            }}
             className="w-full rounded-md border border-bordeaux/30 bg-cream px-4 py-2 font-serif text-ink focus:border-bordeaux focus:outline-none"
           />
         </div>
@@ -77,7 +99,10 @@ export default function RevenueCalculator() {
               <button
                 key={key}
                 type="button"
-                onClick={() => setScenarioType(key)}
+                onClick={() => {
+                  setScenarioType(key);
+                  setSaveStatus("idle");
+                }}
                 className={`rounded-full px-4 py-1.5 font-serif text-sm transition-colors ${
                   scenarioType === key
                     ? "bg-bordeaux text-cream"
@@ -107,6 +132,25 @@ export default function RevenueCalculator() {
               {currency(annualRevenue)}
             </p>
           </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-4 border-t border-bordeaux/10 pt-6">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saveStatus === "saving" || saveStatus === "saved"}
+            className="rounded-full bg-bordeaux px-6 py-3 font-serif text-cream transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {saveStatus === "saving" ? "Saving…" : "Save scenario"}
+          </button>
+          {saveStatus === "saved" && (
+            <span className="text-sm text-bordeaux">Saved.</span>
+          )}
+          {saveStatus === "error" && (
+            <span className="text-sm text-bordeaux">
+              Couldn&apos;t save, please try again.
+            </span>
+          )}
         </div>
       </div>
 

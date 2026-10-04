@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { label: "my taste profile", href: "/my-taste-profile" },
   { label: "ask izy", href: "/core" },
   { label: "community", href: "/community" },
-  { label: "premium access", href: "/premium-access" },
+  { label: "premium access", href: "/pricing" },
   { label: "about us", href: "/about-us" },
 ];
 

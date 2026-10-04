@@ -43,7 +43,7 @@ export default function PricingDashboardWidget({
               </span>
               <span className="text-ink">
                 <span className="font-semibold text-bordeaux">
-                  {scenario.user_count.toLocaleString()}
+                  {scenario.user_count.toLocaleString("en-US")}
                 </span>{" "}
                 free users · {scenario.scenario_type}
               </span>

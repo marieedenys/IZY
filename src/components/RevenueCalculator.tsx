@@ -168,7 +168,7 @@ export default function RevenueCalculator() {
           </thead>
           <tbody>
             {[
-              ["Free users", freeUsers.toLocaleString()],
+              ["Free users", freeUsers.toLocaleString("en-US")],
               ["Izy Plus price", `${currency(PLUS_PRICE)}/month`],
               ["Izy Concierge price", `${currency(CONCIERGE_PRICE)}/month`],
               [
@@ -182,11 +182,11 @@ export default function RevenueCalculator() {
               ["Selected scenario", scenario.label],
               [
                 "Plus users (selected scenario)",
-                Math.round(plusUsers).toLocaleString(),
+                Math.round(plusUsers).toLocaleString("en-US"),
               ],
               [
                 "Concierge users (selected scenario)",
-                Math.round(conciergeUsers).toLocaleString(),
+                Math.round(conciergeUsers).toLocaleString("en-US"),
               ],
             ].map(([label, value]) => (
               <tr key={label} className="border-t border-bordeaux/10">

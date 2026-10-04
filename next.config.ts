@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         destination: "/core",
         permanent: true,
       },
+      {
+        source: "/premium-access",
+        destination: "/pricing",
+        permanent: true,
+      },
     ];
   },
 };

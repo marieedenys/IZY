@@ -1,6 +1,10 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Tagline from "@/components/Tagline";
+import ValueProposition from "@/components/ValueProposition";
+import HowItWorks from "@/components/HowItWorks";
+import PricingTeaser from "@/components/PricingTeaser";
+import HomeCTA from "@/components/HomeCTA";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -10,6 +14,10 @@ export default function Home() {
       <div className="h-12 w-full bg-white" aria-hidden="true" />
       <Hero />
       <Tagline />
+      <ValueProposition />
+      <HowItWorks />
+      <PricingTeaser />
+      <HomeCTA />
       <Footer />
     </div>
   );

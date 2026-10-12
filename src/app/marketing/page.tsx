@@ -7,9 +7,11 @@ import LandingCopyCard from "@/components/LandingCopyCard";
 import SocialPostsCard from "@/components/SocialPostsCard";
 import VideoScriptsCard from "@/components/VideoScriptsCard";
 import CampaignCalendarCard from "@/components/CampaignCalendarCard";
+import ABTester from "@/components/ABTester";
 import SavedAssetsList, {
   type MarketingAsset,
 } from "@/components/SavedAssetsList";
+import { countVotes } from "@/lib/abTests";
 import { supabase } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
@@ -19,12 +21,16 @@ export const metadata: Metadata = {
 };
 
 export default async function MarketingPage() {
-  const { data } = await supabase
-    .from("marketing_assets")
-    .select("id, asset_type, title, content, created_at")
-    .order("created_at", { ascending: false });
+  const [{ data: assetsData }, { data: votesData }] = await Promise.all([
+    supabase
+      .from("marketing_assets")
+      .select("id, asset_type, title, content, created_at")
+      .order("created_at", { ascending: false }),
+    supabase.from("ab_test_results").select("test_name, variant"),
+  ]);
 
-  const assets: MarketingAsset[] = data ?? [];
+  const assets: MarketingAsset[] = assetsData ?? [];
+  const voteCounts = countVotes(votesData ?? []);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -46,6 +52,10 @@ export default async function MarketingPage() {
           <SocialPostsCard />
           <VideoScriptsCard />
           <CampaignCalendarCard />
+        </div>
+
+        <div className="mx-auto mt-16 w-full max-w-4xl">
+          <ABTester counts={voteCounts} />
         </div>
 
         <div className="mx-auto mt-16 w-full max-w-4xl">

@@ -7,12 +7,25 @@ import LandingCopyCard from "@/components/LandingCopyCard";
 import SocialPostsCard from "@/components/SocialPostsCard";
 import VideoScriptsCard from "@/components/VideoScriptsCard";
 import CampaignCalendarCard from "@/components/CampaignCalendarCard";
+import SavedAssetsList, {
+  type MarketingAsset,
+} from "@/components/SavedAssetsList";
+import { supabase } from "@/lib/supabase/client";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Marketing — IZY",
 };
 
-export default function MarketingPage() {
+export default async function MarketingPage() {
+  const { data } = await supabase
+    .from("marketing_assets")
+    .select("id, asset_type, title, content, created_at")
+    .order("created_at", { ascending: false });
+
+  const assets: MarketingAsset[] = data ?? [];
+
   return (
     <div className="flex flex-1 flex-col">
       <Navbar />
@@ -33,6 +46,10 @@ export default function MarketingPage() {
           <SocialPostsCard />
           <VideoScriptsCard />
           <CampaignCalendarCard />
+        </div>
+
+        <div className="mx-auto mt-16 w-full max-w-4xl">
+          <SavedAssetsList assets={assets} />
         </div>
       </div>
       <Footer />

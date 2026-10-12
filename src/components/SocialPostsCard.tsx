@@ -3,7 +3,11 @@ import { SOCIAL_POSTS, formatSocialPosts } from "@/lib/marketingContent";
 
 export default function SocialPostsCard() {
   return (
-    <MarketingCard title="Social posts (10)" content={formatSocialPosts()}>
+    <MarketingCard
+      title="Social posts (10)"
+      assetType="social_posts"
+      content={formatSocialPosts()}
+    >
       <ol className="flex flex-col gap-3">
         {SOCIAL_POSTS.map((post, index) => (
           <li

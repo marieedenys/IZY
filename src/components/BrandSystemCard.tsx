@@ -3,7 +3,11 @@ import { BRAND_SYSTEM, formatBrandSystem } from "@/lib/marketingContent";
 
 export default function BrandSystemCard() {
   return (
-    <MarketingCard title="Brand system" content={formatBrandSystem()}>
+    <MarketingCard
+      title="Brand system"
+      assetType="brand_system"
+      content={formatBrandSystem()}
+    >
       <div className="flex flex-wrap gap-4">
         {BRAND_SYSTEM.colors.map((color) => (
           <div key={color.hex} className="flex flex-col items-center gap-2">

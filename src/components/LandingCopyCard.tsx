@@ -3,7 +3,11 @@ import { LANDING_COPY, formatLandingCopy } from "@/lib/marketingContent";
 
 export default function LandingCopyCard() {
   return (
-    <MarketingCard title="Landing page copy" content={formatLandingCopy()}>
+    <MarketingCard
+      title="Landing page copy"
+      assetType="landing_copy"
+      content={formatLandingCopy()}
+    >
       <h4 className="font-serif text-2xl font-bold text-ink">
         {LANDING_COPY.headline}
       </h4>

@@ -5,6 +5,7 @@ export default function VideoScriptsCard() {
   return (
     <MarketingCard
       title="Video scripts (3, ~30s each)"
+      assetType="video_scripts"
       content={formatVideoScripts()}
     >
       <div className="flex flex-col gap-6">

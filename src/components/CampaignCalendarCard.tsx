@@ -8,6 +8,7 @@ export default function CampaignCalendarCard() {
   return (
     <MarketingCard
       title="14-day campaign calendar"
+      assetType="campaign_calendar"
       content={formatCampaignCalendar()}
     >
       <div className="overflow-x-auto rounded-md border border-bordeaux/10">

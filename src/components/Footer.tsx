@@ -13,6 +13,9 @@ export default function Footer() {
           <Link href="/research" className="hover:opacity-70">
             Research
           </Link>
+          <Link href="/marketing" className="hover:opacity-70">
+            Marketing
+          </Link>
         </nav>
         <p className="text-xs text-ink/60">
           © {new Date().getFullYear()} IZY. All rights reserved.

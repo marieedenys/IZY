@@ -1,9 +1,9 @@
 import MarketingCard from "@/components/MarketingCard";
-import { SOCIAL_POSTS } from "@/lib/marketingContent";
+import { SOCIAL_POSTS, formatSocialPosts } from "@/lib/marketingContent";
 
 export default function SocialPostsCard() {
   return (
-    <MarketingCard title="Social posts (10)">
+    <MarketingCard title="Social posts (10)" content={formatSocialPosts()}>
       <ol className="flex flex-col gap-3">
         {SOCIAL_POSTS.map((post, index) => (
           <li

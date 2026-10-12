@@ -1,9 +1,9 @@
 import MarketingCard from "@/components/MarketingCard";
-import { LANDING_COPY } from "@/lib/marketingContent";
+import { LANDING_COPY, formatLandingCopy } from "@/lib/marketingContent";
 
 export default function LandingCopyCard() {
   return (
-    <MarketingCard title="Landing page copy">
+    <MarketingCard title="Landing page copy" content={formatLandingCopy()}>
       <h4 className="font-serif text-2xl font-bold text-ink">
         {LANDING_COPY.headline}
       </h4>

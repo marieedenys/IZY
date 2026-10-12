@@ -1,9 +1,15 @@
 import MarketingCard from "@/components/MarketingCard";
-import { CAMPAIGN_CALENDAR } from "@/lib/marketingContent";
+import {
+  CAMPAIGN_CALENDAR,
+  formatCampaignCalendar,
+} from "@/lib/marketingContent";
 
 export default function CampaignCalendarCard() {
   return (
-    <MarketingCard title="14-day campaign calendar">
+    <MarketingCard
+      title="14-day campaign calendar"
+      content={formatCampaignCalendar()}
+    >
       <div className="overflow-x-auto rounded-md border border-bordeaux/10">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>

@@ -168,3 +168,70 @@ export const CAMPAIGN_CALENDAR = [
   { day: 13, channel: "Instagram", content: "Social post: new city, new cravings", goal: "Awareness" },
   { day: 14, channel: "Email + Instagram", content: "Campaign recap and CTA: Ask Izy now", goal: "Conversion" },
 ];
+
+// Plain-text renderings of each section, shared by the Copy, Export, and
+// Save actions on their cards.
+
+export function formatPersona(): string {
+  return [
+    `${PERSONA.name}, ${PERSONA.age}`,
+    `${PERSONA.role} · ${PERSONA.location}`,
+    "",
+    PERSONA.summary,
+    "",
+    "Pain points:",
+    ...PERSONA.painPoints.map((p) => `- ${p}`),
+    "",
+    "What she wants:",
+    ...PERSONA.wants.map((w) => `- ${w}`),
+  ].join("\n");
+}
+
+export function formatBrandSystem(): string {
+  return [
+    "Colors:",
+    ...BRAND_SYSTEM.colors.map((c) => `${c.name} ${c.hex}`),
+    "",
+    `Typography: ${BRAND_SYSTEM.typography}`,
+    `Tone: ${BRAND_SYSTEM.tone}`,
+    `Tagline: "${BRAND_SYSTEM.tagline}"`,
+  ].join("\n");
+}
+
+export function formatLandingCopy(): string {
+  return [
+    `Headline: ${LANDING_COPY.headline}`,
+    `Subheadline: ${LANDING_COPY.subheadline}`,
+    "",
+    "Benefits:",
+    ...LANDING_COPY.benefits.map(
+      (b, i) => `${i + 1}. ${b.title} — ${b.description}`,
+    ),
+    "",
+    `CTA: ${LANDING_COPY.cta}`,
+  ].join("\n");
+}
+
+export function formatSocialPosts(): string {
+  return SOCIAL_POSTS.map((post, i) => `${i + 1}. ${post}`).join("\n\n");
+}
+
+export function formatVideoScripts(): string {
+  return VIDEO_SCRIPTS.map((script) =>
+    [
+      `${script.title} (${script.duration})`,
+      ...script.beats.map(
+        (beat) => `${beat.time} — ${beat.action} VO: "${beat.voiceover}"`,
+      ),
+    ].join("\n"),
+  ).join("\n\n");
+}
+
+export function formatCampaignCalendar(): string {
+  return [
+    "Day\tChannel\tContent\tGoal",
+    ...CAMPAIGN_CALENDAR.map(
+      (row) => `${row.day}\t${row.channel}\t${row.content}\t${row.goal}`,
+    ),
+  ].join("\n");
+}

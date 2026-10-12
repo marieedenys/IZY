@@ -1,9 +1,9 @@
 import MarketingCard from "@/components/MarketingCard";
-import { PERSONA } from "@/lib/marketingContent";
+import { PERSONA, formatPersona } from "@/lib/marketingContent";
 
 export default function PersonaCard() {
   return (
-    <MarketingCard title="Target persona">
+    <MarketingCard title="Target persona" content={formatPersona()}>
       <div className="flex flex-col gap-1">
         <span className="font-serif text-2xl font-semibold text-ink">
           {PERSONA.name}, {PERSONA.age}

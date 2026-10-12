@@ -1,9 +1,12 @@
 import MarketingCard from "@/components/MarketingCard";
-import { VIDEO_SCRIPTS } from "@/lib/marketingContent";
+import { VIDEO_SCRIPTS, formatVideoScripts } from "@/lib/marketingContent";
 
 export default function VideoScriptsCard() {
   return (
-    <MarketingCard title="Video scripts (3, ~30s each)">
+    <MarketingCard
+      title="Video scripts (3, ~30s each)"
+      content={formatVideoScripts()}
+    >
       <div className="flex flex-col gap-6">
         {VIDEO_SCRIPTS.map((script) => (
           <div key={script.title}>

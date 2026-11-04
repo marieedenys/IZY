@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { saveConciergeChoice } from "@/lib/localTasteProfile";
 import {
   INTAKE_QUESTIONS,
   getSuggestions,
@@ -89,6 +90,11 @@ export default function ConciergeChat() {
     );
     pushMessage("izy", "Here's what I'd suggest:");
     setSuggestions(result);
+    saveConciergeChoice({
+      craving: finalAnswers.craving,
+      occasion: finalAnswers.occasion,
+      budget: finalAnswers.budget,
+    });
 
     try {
       const row = buildFinishedSessionRow({

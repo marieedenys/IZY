@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { generateRecommendation } from "@/lib/generateRecommendation";
 import { supabase } from "@/lib/supabase/client";
 import { INTAKE_QUESTIONS } from "@/lib/concierge";
+import { saveCoreChoice } from "@/lib/localTasteProfile";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -30,8 +31,15 @@ export default function CoreForm() {
   const isComplete = cuisineType !== "" && atmosphere !== "" && budget !== "";
 
   const handleAskIzy = () => {
-    setResult(generateRecommendation(cuisineType, atmosphere, budget));
+    const generated = generateRecommendation(cuisineType, atmosphere, budget);
+    setResult(generated);
     setSaveStatus("idle");
+    saveCoreChoice({
+      cuisineType,
+      atmosphere,
+      budget,
+      result: generated,
+    });
   };
 
   const handleSave = async () => {

@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INTAKE_QUESTIONS } from "@/lib/concierge";
+import {
+  INTAKE_QUESTIONS,
+  getSuggestions,
+  type Budget,
+  type Craving,
+  type Occasion,
+  type Suggestion,
+} from "@/lib/concierge";
 
 type Message = {
   id: string;
@@ -10,9 +17,9 @@ type Message = {
 };
 
 type Answers = {
-  craving?: string;
-  occasion?: string;
-  budget?: string;
+  craving?: Craving;
+  occasion?: Occasion;
+  budget?: Budget;
 };
 
 function createMessage(sender: "izy" | "user", text: string): Message {
@@ -29,20 +36,32 @@ export default function ConciergeChat() {
   ]);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
+  const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
   const [textInput, setTextInput] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
-  }, [messages]);
+  }, [messages, suggestions]);
 
   const pushMessage = (sender: "izy" | "user", text: string) =>
     setMessages((prev) => [...prev, createMessage(sender, text)]);
 
+  const finish = (finalAnswers: Required<Answers>) => {
+    const result = getSuggestions(
+      finalAnswers.craving,
+      finalAnswers.occasion,
+      finalAnswers.budget,
+    );
+    pushMessage("izy", "Here's what I'd suggest:");
+    setSuggestions(result);
+  };
+
   const handleAnswer = (value: string) => {
     const question = INTAKE_QUESTIONS[step];
     pushMessage("user", value);
-    setAnswers((prev) => ({ ...prev, [question.id]: value }));
+    const nextAnswers: Answers = { ...answers, [question.id]: value };
+    setAnswers(nextAnswers);
 
     const nextStep = step + 1;
     setStep(nextStep);
@@ -50,10 +69,7 @@ export default function ConciergeChat() {
     if (nextStep < INTAKE_QUESTIONS.length) {
       pushMessage("izy", INTAKE_QUESTIONS[nextStep].prompt);
     } else {
-      pushMessage(
-        "izy",
-        "Thanks! Let me find three places that fit (suggestions coming soon).",
-      );
+      finish(nextAnswers as Required<Answers>);
     }
   };
 
@@ -85,6 +101,24 @@ export default function ConciergeChat() {
             {message.text}
           </div>
         ))}
+
+        {suggestions && (
+          <div className="flex max-w-[85%] flex-col gap-3 self-start">
+            {suggestions.map((suggestion) => (
+              <div
+                key={suggestion.name}
+                className="rounded-lg border border-bordeaux/20 bg-white p-4"
+              >
+                <p className="font-serif font-semibold text-bordeaux">
+                  {suggestion.name}
+                </p>
+                <p className="mt-1 text-sm text-ink/70">
+                  {suggestion.reason}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {currentQuestion && (

@@ -47,10 +47,11 @@ export const RISKS: Risk[] = [
       "There is no privacy policy, no documented legal basis, and no data-subject access/deletion flow. This is a classroom prototype, not a GDPR-compliant service.",
   },
   {
-    risk: "The restaurants shown on Ask Izy, Concierge, and Marketing are sample data, but nothing on those pages tells a visitor that.",
-    whatWeDid: "Nothing yet — this is a known, unaddressed gap, listed here rather than hidden.",
+    risk: "The restaurants shown on Ask Izy, Concierge, and Marketing are sample data, which a visitor could mistake for real, current listings.",
+    whatWeDid:
+      "Added a shared DemoDataNotice banner, visible on /core, /chat, and /marketing, stating the restaurants shown are illustrative demo data, not real or current listings.",
     whatRemains:
-      "Add a visible note on /core, /chat, and /marketing that the restaurants are illustrative demo data, not real, current listings.",
+      "The notice is honest but doesn't fix the underlying issue — there is still no real restaurant dataset behind any of these pages.",
   },
   {
     risk: "Suggestion logic could end up favoring pricier cuisines or venues if budget isn't treated as a real constraint.",

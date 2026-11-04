@@ -60,7 +60,7 @@ export const INTAKE_QUESTIONS: IntakeQuestion[] = [
 
 export type DemoRestaurant = {
   name: string;
-  cuisine: Craving | "Any";
+  cuisine: Craving;
   occasions: Occasion[];
   budget: Budget;
   description: string;
@@ -68,8 +68,22 @@ export type DemoRestaurant = {
   isDemoData: true;
 };
 
-// 12 demo restaurants — placeholder data for the Concierge, not real venues.
+// 15 demo restaurants — placeholder data for the Concierge, not real venues.
+// Exactly 3 per real cuisine (Italian, Japanese, Mexican, Light and healthy,
+// Comfort food), one at each budget level, so cuisine can be a hard filter
+// and every craving/occasion/budget combination still has 3 candidates to
+// pick from after relaxing occasion/budget. "Surprise me" draws from all 15.
 export const DEMO_RESTAURANTS: DemoRestaurant[] = [
+  // Italian
+  {
+    name: "Via Napoli",
+    cuisine: "Italian",
+    occasions: ["Friends", "Family"],
+    budget: "$",
+    description:
+      "A no-frills pizzeria slinging thin-crust pies and classic Italian sandwiches, quick enough for a weeknight with friends or family.",
+    isDemoData: true,
+  },
   {
     name: "Nina's Trattoria",
     cuisine: "Italian",
@@ -86,6 +100,16 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
     budget: "$$$",
     description:
       "An upscale Italian room with a wood-fired oven, popular for client dinners that still feel warm.",
+    isDemoData: true,
+  },
+  // Japanese
+  {
+    name: "Ramen Doko",
+    cuisine: "Japanese",
+    occasions: ["Friends", "Solo and quiet"],
+    budget: "$",
+    description:
+      "A counter-service ramen shop with a short menu and fast seats, equally easy solo or with friends.",
     isDemoData: true,
   },
   {
@@ -106,6 +130,7 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
       "A quiet omakase counter where the chef guides every course, ideal for a special occasion.",
     isDemoData: true,
   },
+  // Mexican
   {
     name: "Casa Elote",
     cuisine: "Mexican",
@@ -124,14 +149,15 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
     isDemoData: true,
   },
   {
-    name: "The Green Table",
-    cuisine: "Light and healthy",
-    occasions: ["Solo and quiet", "Business dinner"],
-    budget: "$$",
+    name: "Oaxaca Table",
+    cuisine: "Mexican",
+    occasions: ["Date night", "Business dinner"],
+    budget: "$$$",
     description:
-      "Seasonal, vegetable-forward plates in a calm room, easy to eat light before an afternoon of meetings.",
+      "A refined take on Oaxacan classics with mole flights and a quiet dining room, suited to a date night or a client dinner.",
     isDemoData: true,
   },
+  // Light and healthy
   {
     name: "Citrus & Grain",
     cuisine: "Light and healthy",
@@ -141,6 +167,25 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
       "A fast-casual grain-bowl spot that keeps everyone, including picky eaters, happy.",
     isDemoData: true,
   },
+  {
+    name: "The Green Table",
+    cuisine: "Light and healthy",
+    occasions: ["Solo and quiet", "Business dinner"],
+    budget: "$$",
+    description:
+      "Seasonal, vegetable-forward plates in a calm room, easy to eat light before an afternoon of meetings.",
+    isDemoData: true,
+  },
+  {
+    name: "Verde",
+    cuisine: "Light and healthy",
+    occasions: ["Date night", "Business dinner"],
+    budget: "$$$",
+    description:
+      "A polished plant-forward restaurant with a tasting-menu feel, good for a date night or impressing a client.",
+    isDemoData: true,
+  },
+  // Comfort food
   {
     name: "Mama's Kitchen",
     cuisine: "Comfort food",
@@ -160,21 +205,12 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
     isDemoData: true,
   },
   {
-    name: "Table for Two",
-    cuisine: "Any",
-    occasions: ["Date night", "Solo and quiet"],
+    name: "The Oak Room",
+    cuisine: "Comfort food",
+    occasions: ["Date night", "Business dinner"],
     budget: "$$$",
     description:
-      "A small, quiet dining room with a short seasonal menu, built for real conversation.",
-    isDemoData: true,
-  },
-  {
-    name: "The Common Room",
-    cuisine: "Any",
-    occasions: ["Friends", "Business dinner", "Family"],
-    budget: "$$",
-    description:
-      "An all-day, globally-inspired menu with something for every seat at the table.",
+      "An elevated comfort-food menu, think short rib and truffle mac, served in a room dressed up enough for a date night or a client dinner.",
     isDemoData: true,
   },
 ];
@@ -184,48 +220,127 @@ export type Suggestion = {
   reason: string;
 };
 
-function scoreRestaurant(
+function article(word: string): "a" | "an" {
+  return /^[aeiou]/i.test(word) ? "an" : "a";
+}
+
+function joinClauses(clauses: string[]): string {
+  if (clauses.length === 0) return "";
+  if (clauses.length === 1) return clauses[0];
+  if (clauses.length === 2) return `${clauses[0]} and ${clauses[1]}`;
+  return `${clauses.slice(0, -1).join(", ")}, and ${clauses[clauses.length - 1]}`;
+}
+
+function listWithOr(items: string[]): string {
+  return items.join(" or ");
+}
+
+/**
+ * Builds a reason sentence that only states facts true for this specific
+ * restaurant (drawn from its own fields): it never claims an occasion or
+ * budget match that didn't happen, and says so plainly when a suggestion
+ * is only a close match on occasion or budget.
+ */
+function buildReason(
   restaurant: DemoRestaurant,
   craving: Craving,
   occasion: Occasion,
   budget: Budget,
-): number {
-  let score = 0;
-  if (
-    craving === "Surprise me" ||
-    restaurant.cuisine === craving ||
-    restaurant.cuisine === "Any"
-  ) {
-    score += 2;
+): string {
+  const occasionMatch = restaurant.occasions.includes(occasion);
+  const budgetMatch = restaurant.budget === budget;
+
+  const matchClauses: string[] = [];
+  if (craving !== "Surprise me") {
+    matchClauses.push(`${article(craving)} ${craving} craving`);
   }
-  if (restaurant.occasions.includes(occasion)) {
-    score += 2;
+  if (occasionMatch) matchClauses.push(`a ${occasion} occasion`);
+  if (budgetMatch) matchClauses.push(`a ${budget} budget`);
+
+  const caveats: string[] = [];
+  if (!occasionMatch) {
+    caveats.push(
+      `it's usually picked for ${listWithOr(restaurant.occasions)} rather than ${occasion}`,
+    );
   }
-  if (restaurant.budget === budget) {
-    score += 1;
+  if (!budgetMatch) {
+    caveats.push(`it runs ${restaurant.budget} rather than ${budget}`);
   }
-  return score;
+
+  let sentence: string;
+  if (craving === "Surprise me") {
+    sentence = `${restaurant.name} is a surprise pick, ${restaurant.cuisine} cuisine`;
+    if (matchClauses.length > 0) {
+      sentence += ` that fits ${joinClauses(matchClauses)}`;
+    }
+  } else {
+    sentence = `${restaurant.name} fits ${joinClauses(matchClauses)}`;
+  }
+
+  if (caveats.length > 0) {
+    sentence += `, though ${caveats.join(" and ")}`;
+  }
+
+  return `${sentence}: ${restaurant.description}`;
 }
 
 /**
- * Pure recommendation function — no AI API, no paid service. Ranks the
- * demo restaurant list by fit and always returns exactly 3 suggestions.
+ * Pure recommendation function — no AI API, no paid service. Cuisine is a
+ * hard filter first (when craving isn't "Surprise me", only matching-
+ * cuisine restaurants are eligible); within that eligible set it ranks by
+ * occasion and budget fit, relaxing budget first and then occasion (while
+ * always keeping the cuisine rule) until exactly 3 distinct suggestions
+ * are found.
  */
 export function getSuggestions(
   craving: Craving,
   occasion: Occasion,
   budget: Budget,
 ): Suggestion[] {
-  const ranked = [...DEMO_RESTAURANTS].sort((a, b) => {
-    const diff =
-      scoreRestaurant(b, craving, occasion, budget) -
-      scoreRestaurant(a, craving, occasion, budget);
-    return diff !== 0 ? diff : a.name.localeCompare(b.name);
-  });
+  const eligible = DEMO_RESTAURANTS.filter(
+    (restaurant) => craving === "Surprise me" || restaurant.cuisine === craving,
+  );
 
-  return ranked.slice(0, 3).map((restaurant) => ({
+  const matchLevels: Array<(restaurant: DemoRestaurant) => boolean> = [
+    (restaurant) =>
+      restaurant.occasions.includes(occasion) && restaurant.budget === budget,
+    (restaurant) => restaurant.occasions.includes(occasion),
+    () => true,
+  ];
+
+  const picked: DemoRestaurant[] = [];
+  const pickedNames = new Set<string>();
+
+  for (const matchesLevel of matchLevels) {
+    if (picked.length >= 3) break;
+
+    const candidates = eligible
+      .filter(
+        (restaurant) =>
+          !pickedNames.has(restaurant.name) && matchesLevel(restaurant),
+      )
+      .sort((a, b) => {
+        const occasionA = a.occasions.includes(occasion) ? 1 : 0;
+        const occasionB = b.occasions.includes(occasion) ? 1 : 0;
+        if (occasionA !== occasionB) return occasionB - occasionA;
+
+        const budgetA = a.budget === budget ? 1 : 0;
+        const budgetB = b.budget === budget ? 1 : 0;
+        if (budgetA !== budgetB) return budgetB - budgetA;
+
+        return a.name.localeCompare(b.name);
+      });
+
+    for (const restaurant of candidates) {
+      if (picked.length >= 3) break;
+      picked.push(restaurant);
+      pickedNames.add(restaurant.name);
+    }
+  }
+
+  return picked.map((restaurant) => ({
     name: restaurant.name,
-    reason: `${restaurant.name} fits a ${craving.toLowerCase()} craving, a ${occasion.toLowerCase()} occasion, and a ${budget} budget: ${restaurant.description}`,
+    reason: buildReason(restaurant, craving, occasion, budget),
   }));
 }
 

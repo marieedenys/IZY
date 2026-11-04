@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
 import {
   INTAKE_QUESTIONS,
   getSuggestions,
   classifyMessage,
   guardrailReply,
+  guardrailOutcome,
+  shouldSaveGuardrailEvent,
+  shouldSaveMessageText,
   type Budget,
   type Craving,
   type Occasion,
@@ -24,11 +28,16 @@ type Answers = {
   budget?: Budget;
 };
 
+type Rating = "up" | "down";
+
+const SAVE_FAILED_NOTICE = "Your session could not be saved.";
+
 function createMessage(sender: "izy" | "user", text: string): Message {
   return { id: crypto.randomUUID(), sender, text };
 }
 
 export default function ConciergeChat() {
+  const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>(() => [
     createMessage(
       "izy",
@@ -39,6 +48,9 @@ export default function ConciergeChat() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
+  const [rating, setRating] = useState<Rating | null>(null);
+  const [ratingSaving, setRatingSaving] = useState(false);
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +61,9 @@ export default function ConciergeChat() {
   const pushMessage = (sender: "izy" | "user", text: string) =>
     setMessages((prev) => [...prev, createMessage(sender, text)]);
 
-  const finish = (finalAnswers: Required<Answers>) => {
+  const flagSaveFailure = () => setSaveNotice(SAVE_FAILED_NOTICE);
+
+  const finish = async (finalAnswers: Required<Answers>) => {
     const result = getSuggestions(
       finalAnswers.craving,
       finalAnswers.occasion,
@@ -57,6 +71,18 @@ export default function ConciergeChat() {
     );
     pushMessage("izy", "Here's what I'd suggest:");
     setSuggestions(result);
+
+    try {
+      const { error } = await supabase.from("concierge_sessions").insert({
+        craving: finalAnswers.craving,
+        occasion: finalAnswers.occasion,
+        budget: finalAnswers.budget,
+        outcome: "completed",
+      });
+      if (error) flagSaveFailure();
+    } catch {
+      flagSaveFailure();
+    }
   };
 
   const handleAnswer = (value: string) => {
@@ -71,11 +97,11 @@ export default function ConciergeChat() {
     if (nextStep < INTAKE_QUESTIONS.length) {
       pushMessage("izy", INTAKE_QUESTIONS[nextStep].prompt);
     } else {
-      finish(nextAnswers as Required<Answers>);
+      void finish(nextAnswers as Required<Answers>);
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = textInput.trim();
     if (!trimmed) return;
     setTextInput("");
@@ -84,13 +110,52 @@ export default function ConciergeChat() {
     const category = classifyMessage(trimmed);
     pushMessage("izy", guardrailReply(category));
 
+    if (shouldSaveGuardrailEvent(category)) {
+      const payload: Record<string, string> = {
+        category,
+        outcome: guardrailOutcome(category),
+        ...(answers.craving ? { craving: answers.craving } : {}),
+        ...(answers.occasion ? { occasion: answers.occasion } : {}),
+        ...(answers.budget ? { budget: answers.budget } : {}),
+        ...(shouldSaveMessageText(category)
+          ? { user_message: trimmed }
+          : {}),
+      };
+      try {
+        const { error } = await supabase
+          .from("concierge_sessions")
+          .insert(payload);
+        if (error) flagSaveFailure();
+      } catch {
+        flagSaveFailure();
+      }
+    }
+
     if (step < INTAKE_QUESTIONS.length) {
       pushMessage("izy", INTAKE_QUESTIONS[step].prompt);
     }
   };
 
+  const handleRate = async (value: Rating) => {
+    if (rating) return;
+    setRating(value);
+    setRatingSaving(true);
+    try {
+      const { error } = await supabase.from("concierge_feedback").insert({
+        session_id: sessionId,
+        rating: value,
+      });
+      if (error) flagSaveFailure();
+    } catch {
+      flagSaveFailure();
+    } finally {
+      setRatingSaving(false);
+    }
+  };
+
   const currentQuestion =
     step < INTAKE_QUESTIONS.length ? INTAKE_QUESTIONS[step] : null;
+  const showRatingButtons = !currentQuestion && suggestions && !rating;
 
   return (
     <div className="flex h-[600px] flex-col overflow-hidden rounded-lg border border-bordeaux/20 bg-white">
@@ -128,6 +193,16 @@ export default function ConciergeChat() {
             ))}
           </div>
         )}
+
+        {rating && (
+          <div className="max-w-[85%] self-start rounded-lg border border-bordeaux/20 bg-cream px-4 py-2 font-serif text-sm text-ink">
+            Thanks for the feedback!
+          </div>
+        )}
+
+        {saveNotice && (
+          <p className="self-center text-xs text-ink/50">{saveNotice}</p>
+        )}
       </div>
 
       {currentQuestion && (
@@ -145,10 +220,31 @@ export default function ConciergeChat() {
         </div>
       )}
 
+      {showRatingButtons && (
+        <div className="flex items-center justify-center gap-4 border-t border-bordeaux/10 p-3">
+          <button
+            type="button"
+            disabled={ratingSaving}
+            onClick={() => handleRate("up")}
+            className="rounded-full border border-bordeaux px-4 py-1.5 font-serif text-sm text-bordeaux transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            👍 Helpful
+          </button>
+          <button
+            type="button"
+            disabled={ratingSaving}
+            onClick={() => handleRate("down")}
+            className="rounded-full border border-bordeaux px-4 py-1.5 font-serif text-sm text-bordeaux transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            👎 Not for me
+          </button>
+        </div>
+      )}
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSend();
+          void handleSend();
         }}
         className="flex items-center gap-2 border-t border-bordeaux/10 p-3"
       >

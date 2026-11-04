@@ -273,3 +273,26 @@ export function guardrailReply(category: GuardrailCategory): string {
       return "I'm just here to help you find somewhere to eat. Let's get back to the questions.";
   }
 }
+
+/**
+ * allergy_or_health and reservation need a human to follow up;
+ * personal_data and off_topic are just refused and logged (or not logged
+ * at all, for off_topic).
+ */
+export function guardrailOutcome(
+  category: GuardrailCategory,
+): "pending_human_review" | "refused" {
+  return category === "allergy_or_health" || category === "reservation"
+    ? "pending_human_review"
+    : "refused";
+}
+
+/** off_topic messages are the lowest-severity default bucket and aren't logged. */
+export function shouldSaveGuardrailEvent(category: GuardrailCategory): boolean {
+  return category !== "off_topic";
+}
+
+/** Only allergy_or_health and reservation keep the original message text. */
+export function shouldSaveMessageText(category: GuardrailCategory): boolean {
+  return category === "allergy_or_health" || category === "reservation";
+}

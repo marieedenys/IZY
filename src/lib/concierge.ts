@@ -228,3 +228,48 @@ export function getSuggestions(
     reason: `${restaurant.name} fits a ${craving.toLowerCase()} craving, a ${occasion.toLowerCase()} occasion, and a ${budget} budget: ${restaurant.description}`,
   }));
 }
+
+// --- Guardrail -------------------------------------------------------
+//
+// Typed messages are never used to generate a recommendation. They are
+// classified into exactly one of four categories; the Concierge always
+// replies with a fixed, non-AI message and — for the two safety-critical
+// categories — a human-review flag, then returns to the intake questions.
+
+export type GuardrailCategory =
+  | "allergy_or_health"
+  | "reservation"
+  | "personal_data"
+  | "off_topic";
+
+const ALLERGY_OR_HEALTH_PATTERN =
+  /\b(allerg(y|ic|ies)|gluten|celiac|coeliac|lactose|nuts?|nut-free|diabet(es|ic)|medical|intoleran(t|ce))\b/i;
+
+const RESERVATION_PATTERN = /\b(book(ing)?|reserve|reservation|table for)\b/i;
+
+const PERSONAL_DATA_PATTERN =
+  /\b(phone(\s*number)?|e-?mail|address|card number|credit card|password)\b/i;
+
+/**
+ * Pure classifier — no AI API, no paid service. Anything that doesn't
+ * match a specific pattern defaults to "off_topic".
+ */
+export function classifyMessage(text: string): GuardrailCategory {
+  if (ALLERGY_OR_HEALTH_PATTERN.test(text)) return "allergy_or_health";
+  if (RESERVATION_PATTERN.test(text)) return "reservation";
+  if (PERSONAL_DATA_PATTERN.test(text)) return "personal_data";
+  return "off_topic";
+}
+
+export function guardrailReply(category: GuardrailCategory): string {
+  switch (category) {
+    case "allergy_or_health":
+      return "I can't guarantee food safety for allergies or medical needs, so I've sent this to the Izy team for a human to review.";
+    case "reservation":
+      return "I can't make a reservation or guarantee a table myself, so I've sent this to the Izy team for a human to review.";
+    case "personal_data":
+      return "I can't take personal or payment details here. Let's get back to finding you a table.";
+    case "off_topic":
+      return "I'm just here to help you find somewhere to eat. Let's get back to the questions.";
+  }
+}

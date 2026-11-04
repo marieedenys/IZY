@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import {
   INTAKE_QUESTIONS,
   getSuggestions,
+  classifyMessage,
+  guardrailReply,
   type Budget,
   type Craving,
   type Occasion,
@@ -78,6 +80,13 @@ export default function ConciergeChat() {
     if (!trimmed) return;
     setTextInput("");
     pushMessage("user", trimmed);
+
+    const category = classifyMessage(trimmed);
+    pushMessage("izy", guardrailReply(category));
+
+    if (step < INTAKE_QUESTIONS.length) {
+      pushMessage("izy", INTAKE_QUESTIONS[step].prompt);
+    }
   };
 
   const currentQuestion =

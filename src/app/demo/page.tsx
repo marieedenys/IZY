@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DemoTour from "@/components/DemoTour";
 import AgentMapSection from "@/components/AgentMapSection";
+import ImpactCheckSection from "@/components/ImpactCheckSection";
 
 export const metadata: Metadata = {
   title: "Demo — IZY",
@@ -31,6 +32,10 @@ export default function DemoPage() {
 
         <div className="mx-auto mt-16 w-full max-w-4xl">
           <AgentMapSection />
+        </div>
+
+        <div className="mx-auto mt-16 w-full max-w-4xl">
+          <ImpactCheckSection />
         </div>
       </div>
       <Footer />

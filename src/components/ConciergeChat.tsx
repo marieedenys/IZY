@@ -8,7 +8,6 @@ import {
   classifyMessage,
   guardrailReply,
   guardrailOutcome,
-  shouldSaveGuardrailEvent,
   shouldSaveMessageText,
   type Budget,
   type Craving,
@@ -61,7 +60,23 @@ export default function ConciergeChat() {
   const pushMessage = (sender: "izy" | "user", text: string) =>
     setMessages((prev) => [...prev, createMessage(sender, text)]);
 
-  const flagSaveFailure = () => setSaveNotice(SAVE_FAILED_NOTICE);
+  /**
+   * Logs the real Supabase error (code + message) for debugging, while the
+   * user only ever sees the generic save-failure notice.
+   */
+  const flagSaveFailure = (context: string, error: unknown) => {
+    if (error && typeof error === "object" && "code" in error) {
+      const pgError = error as { code?: string; message?: string };
+      console.error(
+        `[concierge] ${context} failed:`,
+        pgError.code,
+        pgError.message,
+      );
+    } else {
+      console.error(`[concierge] ${context} failed:`, error);
+    }
+    setSaveNotice(SAVE_FAILED_NOTICE);
+  };
 
   const finish = async (finalAnswers: Required<Answers>) => {
     const result = getSuggestions(
@@ -74,14 +89,15 @@ export default function ConciergeChat() {
 
     try {
       const { error } = await supabase.from("concierge_sessions").insert({
+        id: sessionId,
         craving: finalAnswers.craving,
         occasion: finalAnswers.occasion,
         budget: finalAnswers.budget,
-        outcome: "completed",
+        outcome: "recommended",
       });
-      if (error) flagSaveFailure();
-    } catch {
-      flagSaveFailure();
+      if (error) flagSaveFailure("concierge_sessions insert (recommended)", error);
+    } catch (error) {
+      flagSaveFailure("concierge_sessions insert (recommended)", error);
     }
   };
 
@@ -110,25 +126,22 @@ export default function ConciergeChat() {
     const category = classifyMessage(trimmed);
     pushMessage("izy", guardrailReply(category));
 
-    if (shouldSaveGuardrailEvent(category)) {
-      const payload: Record<string, string> = {
-        category,
-        outcome: guardrailOutcome(category),
-        ...(answers.craving ? { craving: answers.craving } : {}),
-        ...(answers.occasion ? { occasion: answers.occasion } : {}),
-        ...(answers.budget ? { budget: answers.budget } : {}),
-        ...(shouldSaveMessageText(category)
-          ? { user_message: trimmed }
-          : {}),
-      };
-      try {
-        const { error } = await supabase
-          .from("concierge_sessions")
-          .insert(payload);
-        if (error) flagSaveFailure();
-      } catch {
-        flagSaveFailure();
-      }
+    const payload: Record<string, string> = {
+      id: sessionId,
+      category,
+      outcome: guardrailOutcome(category),
+      ...(answers.craving ? { craving: answers.craving } : {}),
+      ...(answers.occasion ? { occasion: answers.occasion } : {}),
+      ...(answers.budget ? { budget: answers.budget } : {}),
+      ...(shouldSaveMessageText(category) ? { user_message: trimmed } : {}),
+    };
+    try {
+      const { error } = await supabase
+        .from("concierge_sessions")
+        .insert(payload);
+      if (error) flagSaveFailure("concierge_sessions insert (guardrail)", error);
+    } catch (error) {
+      flagSaveFailure("concierge_sessions insert (guardrail)", error);
     }
 
     if (step < INTAKE_QUESTIONS.length) {
@@ -145,9 +158,9 @@ export default function ConciergeChat() {
         session_id: sessionId,
         rating: value,
       });
-      if (error) flagSaveFailure();
-    } catch {
-      flagSaveFailure();
+      if (error) flagSaveFailure("concierge_feedback insert", error);
+    } catch (error) {
+      flagSaveFailure("concierge_feedback insert", error);
     } finally {
       setRatingSaving(false);
     }

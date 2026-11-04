@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { INTAKE_QUESTIONS } from "@/lib/concierge";
 
 type Message = {
   id: string;
   sender: "izy" | "user";
   text: string;
+};
+
+type Answers = {
+  craving?: string;
+  occasion?: string;
+  budget?: string;
 };
 
 function createMessage(sender: "izy" | "user", text: string): Message {
@@ -18,7 +25,10 @@ export default function ConciergeChat() {
       "izy",
       "Hi, I'm the Izy Concierge. I'll ask you a few quick questions, then suggest three places to eat.",
     ),
+    createMessage("izy", INTAKE_QUESTIONS[0].prompt),
   ]);
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<Answers>({});
   const [textInput, setTextInput] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -26,12 +36,36 @@ export default function ConciergeChat() {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [messages]);
 
+  const pushMessage = (sender: "izy" | "user", text: string) =>
+    setMessages((prev) => [...prev, createMessage(sender, text)]);
+
+  const handleAnswer = (value: string) => {
+    const question = INTAKE_QUESTIONS[step];
+    pushMessage("user", value);
+    setAnswers((prev) => ({ ...prev, [question.id]: value }));
+
+    const nextStep = step + 1;
+    setStep(nextStep);
+
+    if (nextStep < INTAKE_QUESTIONS.length) {
+      pushMessage("izy", INTAKE_QUESTIONS[nextStep].prompt);
+    } else {
+      pushMessage(
+        "izy",
+        "Thanks! Let me find three places that fit (suggestions coming soon).",
+      );
+    }
+  };
+
   const handleSend = () => {
     const trimmed = textInput.trim();
     if (!trimmed) return;
     setTextInput("");
-    setMessages((prev) => [...prev, createMessage("user", trimmed)]);
+    pushMessage("user", trimmed);
   };
+
+  const currentQuestion =
+    step < INTAKE_QUESTIONS.length ? INTAKE_QUESTIONS[step] : null;
 
   return (
     <div className="flex h-[600px] flex-col overflow-hidden rounded-lg border border-bordeaux/20 bg-white">
@@ -52,6 +86,21 @@ export default function ConciergeChat() {
           </div>
         ))}
       </div>
+
+      {currentQuestion && (
+        <div className="flex flex-wrap gap-2 border-t border-bordeaux/10 p-3">
+          {currentQuestion.options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => handleAnswer(option)}
+              className="rounded-full border border-bordeaux px-4 py-1.5 font-serif text-sm text-bordeaux transition-opacity hover:opacity-80"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
 
       <form
         onSubmit={(e) => {

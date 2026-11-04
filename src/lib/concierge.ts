@@ -355,7 +355,7 @@ export type GuardrailCategory =
   | "allergy_or_health"
   | "reservation"
   | "personal_data"
-  | "off_topic";
+  | "unrecognized";
 
 const ALLERGY_OR_HEALTH_PATTERN =
   /\b(allerg(y|ic|ies)|gluten|celiac|coeliac|lactose|nuts?|nut-free|diabet(es|ic)|medical|intoleran(t|ce))\b/i;
@@ -367,13 +367,13 @@ const PERSONAL_DATA_PATTERN =
 
 /**
  * Pure classifier — no AI API, no paid service. Anything that doesn't
- * match a specific pattern defaults to "off_topic".
+ * match a specific pattern defaults to "unrecognized".
  */
 export function classifyMessage(text: string): GuardrailCategory {
   if (ALLERGY_OR_HEALTH_PATTERN.test(text)) return "allergy_or_health";
   if (RESERVATION_PATTERN.test(text)) return "reservation";
   if (PERSONAL_DATA_PATTERN.test(text)) return "personal_data";
-  return "off_topic";
+  return "unrecognized";
 }
 
 export function guardrailReply(category: GuardrailCategory): string {
@@ -384,15 +384,15 @@ export function guardrailReply(category: GuardrailCategory): string {
       return "I can't make a reservation or guarantee a table myself, so I've sent this to the Izy team for a human to review.";
     case "personal_data":
       return "I can't take personal or payment details here. Let's get back to finding you a table.";
-    case "off_topic":
-      return "I'm just here to help you find somewhere to eat. Let's get back to the questions.";
+    case "unrecognized":
+      return "I can only follow the quick questions here, so please tap one of the options above.";
   }
 }
 
 /**
  * Maps a guardrail category to the outcome values concierge_sessions
  * actually accepts: allergy_or_health and reservation need a human to
- * follow up ("pending_human_review"); personal_data and off_topic are
+ * follow up ("pending_human_review"); personal_data and unrecognized are
  * just refused and logged as "guardrail".
  */
 export function guardrailOutcome(
@@ -406,4 +406,67 @@ export function guardrailOutcome(
 /** Only allergy_or_health and reservation keep the original message text. */
 export function shouldSaveMessageText(category: GuardrailCategory): boolean {
   return category === "allergy_or_health" || category === "reservation";
+}
+
+// --- Supabase row builders --------------------------------------------
+//
+// Pure functions that decide exactly what gets written to
+// concierge_sessions. Kept separate from the Supabase call itself so the
+// id logic can be unit-tested without touching the database: every
+// guardrail event gets its own fresh id (its own primary key row),
+// distinct from the session's own id, which only the finished-session
+// row uses.
+
+export type GuardrailSessionRow = {
+  id: string;
+  category: GuardrailCategory;
+  outcome: "pending_human_review" | "guardrail";
+  craving?: Craving;
+  occasion?: Occasion;
+  budget?: Budget;
+  user_message?: string;
+};
+
+export function buildGuardrailSessionRow(args: {
+  /** Must be a fresh id per event — never the chat's own session id. */
+  eventId: string;
+  category: GuardrailCategory;
+  craving?: Craving;
+  occasion?: Occasion;
+  budget?: Budget;
+  message: string;
+}): GuardrailSessionRow {
+  const { eventId, category, craving, occasion, budget, message } = args;
+  return {
+    id: eventId,
+    category,
+    outcome: guardrailOutcome(category),
+    ...(craving ? { craving } : {}),
+    ...(occasion ? { occasion } : {}),
+    ...(budget ? { budget } : {}),
+    ...(shouldSaveMessageText(category) ? { user_message: message } : {}),
+  };
+}
+
+export type FinishedSessionRow = {
+  id: string;
+  craving: Craving;
+  occasion: Occasion;
+  budget: Budget;
+  outcome: "recommended";
+};
+
+export function buildFinishedSessionRow(args: {
+  sessionId: string;
+  craving: Craving;
+  occasion: Occasion;
+  budget: Budget;
+}): FinishedSessionRow {
+  return {
+    id: args.sessionId,
+    craving: args.craving,
+    occasion: args.occasion,
+    budget: args.budget,
+    outcome: "recommended",
+  };
 }

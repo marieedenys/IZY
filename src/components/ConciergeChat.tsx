@@ -7,8 +7,8 @@ import {
   getSuggestions,
   classifyMessage,
   guardrailReply,
-  guardrailOutcome,
-  shouldSaveMessageText,
+  buildGuardrailSessionRow,
+  buildFinishedSessionRow,
   type Budget,
   type Craving,
   type Occasion,
@@ -78,6 +78,9 @@ export default function ConciergeChat() {
     setSaveNotice(SAVE_FAILED_NOTICE);
   };
 
+  /** Clears a stale failure notice as soon as a later save succeeds. */
+  const clearSaveFailure = () => setSaveNotice(null);
+
   const finish = async (finalAnswers: Required<Answers>) => {
     const result = getSuggestions(
       finalAnswers.craving,
@@ -88,14 +91,18 @@ export default function ConciergeChat() {
     setSuggestions(result);
 
     try {
-      const { error } = await supabase.from("concierge_sessions").insert({
-        id: sessionId,
+      const row = buildFinishedSessionRow({
+        sessionId,
         craving: finalAnswers.craving,
         occasion: finalAnswers.occasion,
         budget: finalAnswers.budget,
-        outcome: "recommended",
       });
-      if (error) flagSaveFailure("concierge_sessions insert (recommended)", error);
+      const { error } = await supabase.from("concierge_sessions").insert(row);
+      if (error) {
+        flagSaveFailure("concierge_sessions insert (recommended)", error);
+      } else {
+        clearSaveFailure();
+      }
     } catch (error) {
       flagSaveFailure("concierge_sessions insert (recommended)", error);
     }
@@ -126,20 +133,23 @@ export default function ConciergeChat() {
     const category = classifyMessage(trimmed);
     pushMessage("izy", guardrailReply(category));
 
-    const payload: Record<string, string> = {
-      id: sessionId,
+    // Every guardrail event is its own row, with its own fresh id — never
+    // the chat's session id, which the finished-session row owns.
+    const row = buildGuardrailSessionRow({
+      eventId: crypto.randomUUID(),
       category,
-      outcome: guardrailOutcome(category),
-      ...(answers.craving ? { craving: answers.craving } : {}),
-      ...(answers.occasion ? { occasion: answers.occasion } : {}),
-      ...(answers.budget ? { budget: answers.budget } : {}),
-      ...(shouldSaveMessageText(category) ? { user_message: trimmed } : {}),
-    };
+      craving: answers.craving,
+      occasion: answers.occasion,
+      budget: answers.budget,
+      message: trimmed,
+    });
     try {
-      const { error } = await supabase
-        .from("concierge_sessions")
-        .insert(payload);
-      if (error) flagSaveFailure("concierge_sessions insert (guardrail)", error);
+      const { error } = await supabase.from("concierge_sessions").insert(row);
+      if (error) {
+        flagSaveFailure("concierge_sessions insert (guardrail)", error);
+      } else {
+        clearSaveFailure();
+      }
     } catch (error) {
       flagSaveFailure("concierge_sessions insert (guardrail)", error);
     }
@@ -158,7 +168,11 @@ export default function ConciergeChat() {
         session_id: sessionId,
         rating: value,
       });
-      if (error) flagSaveFailure("concierge_feedback insert", error);
+      if (error) {
+        flagSaveFailure("concierge_feedback insert", error);
+      } else {
+        clearSaveFailure();
+      }
     } catch (error) {
       flagSaveFailure("concierge_feedback insert", error);
     } finally {

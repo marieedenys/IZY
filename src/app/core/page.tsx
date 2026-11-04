@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import CoreForm from "@/components/CoreForm";
 import CoreDashboard, { type CoreOutput } from "@/components/CoreDashboard";
@@ -28,6 +29,15 @@ export default async function CorePage() {
           </h1>
           <p className="mt-3 font-serif text-lg text-ink/70">
             Tell Izy what you&apos;re craving and get an instant recommendation.
+          </p>
+          <p className="mt-3 font-serif text-sm text-ink/60">
+            Not sure yet?{" "}
+            <Link
+              href="/chat"
+              className="text-bordeaux underline underline-offset-4 hover:opacity-70"
+            >
+              Talk to the concierge
+            </Link>
           </p>
         </div>
 

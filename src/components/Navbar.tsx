@@ -4,7 +4,7 @@ const NAV_ITEMS = [
   { label: "my reviews", href: "/my-reviews" },
   { label: "my taste profile", href: "/my-taste-profile" },
   { label: "ask izy", href: "/core" },
-  { label: "community", href: "/community" },
+  { label: "concierge", href: "/chat" },
   { label: "premium access", href: "/pricing" },
   { label: "about us", href: "/about-us" },
 ];

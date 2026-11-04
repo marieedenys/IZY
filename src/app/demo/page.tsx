@@ -5,6 +5,7 @@ import DemoTour from "@/components/DemoTour";
 import AgentMapSection from "@/components/AgentMapSection";
 import ImpactCheckSection from "@/components/ImpactCheckSection";
 import TestingSummarySection from "@/components/TestingSummarySection";
+import RoadmapSection from "@/components/RoadmapSection";
 
 export const metadata: Metadata = {
   title: "Demo — IZY",
@@ -41,6 +42,10 @@ export default function DemoPage() {
 
         <div className="mx-auto mt-16 w-full max-w-4xl">
           <TestingSummarySection />
+        </div>
+
+        <div className="mx-auto mt-16 w-full max-w-4xl">
+          <RoadmapSection />
         </div>
       </div>
       <Footer />

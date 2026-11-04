@@ -6,7 +6,13 @@ export default function Footer() {
       <div className="h-px bg-bordeaux" />
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-8 text-center sm:flex-row sm:justify-between sm:text-left">
         <span className="font-serif text-lg font-bold text-bordeaux">IZY</span>
-        <nav className="flex items-center gap-4 text-xs font-semibold tracking-wide text-bordeaux uppercase">
+        <nav className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold tracking-wide text-bordeaux uppercase">
+          <Link href="/demo" className="hover:opacity-70">
+            Demo
+          </Link>
+          <Link href="/dashboard" className="hover:opacity-70">
+            Dashboard
+          </Link>
           <Link href="/docs" className="hover:opacity-70">
             Docs
           </Link>

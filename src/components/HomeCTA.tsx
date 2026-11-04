@@ -6,7 +6,7 @@ export default function HomeCTA() {
       <h2 className="font-serif text-3xl font-bold text-cream sm:text-4xl">
         Ready to eat better tonight?
       </h2>
-      <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
         <Link
           href="/core"
           className="rounded-full bg-cream px-6 py-3 font-serif text-bordeaux transition-opacity hover:opacity-90"
@@ -18,6 +18,12 @@ export default function HomeCTA() {
           className="rounded-full border border-cream px-6 py-3 font-serif text-cream transition-opacity hover:opacity-90"
         >
           View pricing
+        </Link>
+        <Link
+          href="/demo"
+          className="rounded-full border border-cream px-6 py-3 font-serif text-cream transition-opacity hover:opacity-90"
+        >
+          Take the guided tour
         </Link>
       </div>
     </section>

@@ -1,15 +1,20 @@
+// Keys match the shared cuisine/mood vocabulary from lib/concierge.ts
+// (INTAKE_QUESTIONS), so Ask Izy and the Concierge talk about the same
+// cuisines, occasions, and budgets.
 const CUISINE_VENUE: Record<string, string> = {
   Italian: "trattoria",
   Japanese: "izakaya",
-  French: "bistro",
-  Mediterranean: "taverna",
+  Mexican: "taqueria",
+  "Light and healthy": "healthy café",
+  "Comfort food": "comfort-food diner",
 };
 
 const ATMOSPHERE_DESCRIPTOR: Record<string, string> = {
-  Romantic: "an intimate",
-  Casual: "a relaxed",
-  Festive: "a lively",
-  Calm: "a quiet",
+  "Date night": "an intimate",
+  Friends: "a lively",
+  Family: "a family-friendly",
+  "Business dinner": "a polished",
+  "Solo and quiet": "a quiet",
 };
 
 /**

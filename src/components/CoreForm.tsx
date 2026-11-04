@@ -4,12 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { generateRecommendation } from "@/lib/generateRecommendation";
 import { supabase } from "@/lib/supabase/client";
+import { INTAKE_QUESTIONS } from "@/lib/concierge";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-const CUISINE_OPTIONS = ["Italian", "Japanese", "French", "Mediterranean"];
-const ATMOSPHERE_OPTIONS = ["Romantic", "Casual", "Festive", "Calm"];
-const BUDGET_OPTIONS = ["€", "€€", "€€€", "€€€€"];
+// Shares its vocabulary and currency symbol with the Concierge (/chat) so
+// the two recommenders stay consistent for users moving between them.
+const CUISINE_OPTIONS = INTAKE_QUESTIONS[0].options;
+const ATMOSPHERE_OPTIONS = INTAKE_QUESTIONS[1].options;
+const BUDGET_OPTIONS = INTAKE_QUESTIONS[2].options;
 
 const selectClassName =
   "w-full rounded-md border border-bordeaux/30 bg-cream px-4 py-2 font-serif text-ink focus:border-bordeaux focus:outline-none";

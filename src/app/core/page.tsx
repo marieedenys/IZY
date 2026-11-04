@@ -3,6 +3,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import CoreForm from "@/components/CoreForm";
 import CoreDashboard, { type CoreOutput } from "@/components/CoreDashboard";
+import DemoDataNotice from "@/components/DemoDataNotice";
 import { supabase } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ export default async function CorePage() {
               Talk to the concierge
             </Link>
           </p>
+          <DemoDataNotice />
         </div>
 
         <div className="mt-12">

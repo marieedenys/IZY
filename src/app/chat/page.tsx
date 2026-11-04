@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import ConciergeChat from "@/components/ConciergeChat";
+import DemoDataNotice from "@/components/DemoDataNotice";
 
 export const metadata: Metadata = {
   title: "Concierge — IZY",
@@ -19,6 +20,7 @@ export default function ChatPage() {
             Not sure what you want yet? Answer three quick questions and the
             concierge will suggest a table.
           </p>
+          <DemoDataNotice />
         </div>
 
         <div className="mx-auto mt-12 w-full max-w-xl">

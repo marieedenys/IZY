@@ -11,6 +11,7 @@ import ABTester from "@/components/ABTester";
 import SavedAssetsList, {
   type MarketingAsset,
 } from "@/components/SavedAssetsList";
+import DemoDataNotice from "@/components/DemoDataNotice";
 import { countVotes } from "@/lib/abTests";
 import { supabase } from "@/lib/supabase/client";
 
@@ -43,6 +44,7 @@ export default async function MarketingPage() {
           <p className="mt-3 font-serif text-lg text-ink/70">
             The launch kit: persona, brand system, copy, and campaign plan.
           </p>
+          <DemoDataNotice />
         </div>
 
         <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-8">

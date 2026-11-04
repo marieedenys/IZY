@@ -65,22 +65,22 @@ export const TESTS: TestEntry[] = [
     area: "All routes",
     whatWasTested:
       "Every route (/, /core, /chat, /marketing, /pricing, /research, /docs, /demo, /dashboard, /my-reviews, /my-taste-profile, /about-us) returns 200.",
-    result: "Not run",
-    note: "Scheduled for the final step of this build, after every page exists.",
+    result: "Pass",
+    note: "Checked with curl against every route; all 12 returned HTTP 200.",
   },
   {
     id: "localstorage-pages",
     area: "/my-reviews, /my-taste-profile",
     whatWasTested:
       "The localStorage-only review form and taste-profile page actually save, list, and persist across a reload.",
-    result: "Not run",
-    note: "These pages don't exist yet; scheduled once they're built.",
+    result: "Pass",
+    note: "Submitted a test review and confirmed it listed and survived a reload; set an Ask Izy choice and confirmed it appeared on /my-taste-profile.",
   },
   {
     id: "full-build",
     area: "Whole app",
     whatWasTested: "A full production build (npm run build) with no errors, after every page in this module is added.",
-    result: "Not run",
-    note: "Scheduled for the final step of this build.",
+    result: "Pass",
+    note: "npm run build completed clean, including TypeScript checks, with all 12 required routes present in the output.",
   },
 ];
